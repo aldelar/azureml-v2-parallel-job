@@ -1,0 +1,15 @@
+artifact_uri: file:///mnt/c/Users/aldelar/OneDrive%20-%20Microsoft/Code/azureml-v2-parallel-job/data-engineering/mlruns/0/98d69f76ba6748abb35b7da3c0433945/artifacts
+end_time: 1658513471624
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+name: ''
+run_id: 98d69f76ba6748abb35b7da3c0433945
+run_uuid: 98d69f76ba6748abb35b7da3c0433945
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1658513471426
+status: 3
+tags: []
+user_id: aldelar

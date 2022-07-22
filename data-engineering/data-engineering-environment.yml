@@ -1,0 +1,4 @@
+$schema: https://azuremlschemas.azureedge.net/latest/environment.schema.json
+name: amlv2-pj-data-engineering
+image: mcr.microsoft.com/azureml/openmpi3.1.2-ubuntu18.04:latest
+conda_file: data-engineering-conda.yml

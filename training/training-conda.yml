@@ -1,9 +1,10 @@
-name: amlv2-pj-data-engineering
+name: amlv2-pj-training
 channels:
 - conda-forge
 dependencies:
 - pip
 - python=3.8
 - pip:
+  - azureml-core
   - mlflow
   - pandas
