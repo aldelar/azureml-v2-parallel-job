@@ -1,0 +1,9 @@
+name: amlv2-pj-data-engineering
+channels:
+- conda-forge
+dependencies:
+- pip
+- python=3.8
+- pip:
+  - mlflow
+  - pandas
