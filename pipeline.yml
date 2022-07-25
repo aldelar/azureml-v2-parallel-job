@@ -11,34 +11,31 @@ jobs:
     command: python data-engineering.py --training_data_folder ${{outputs.training_data_folder}}
     outputs:
       training_data_folder:
-        type: uri_folder
-        path: azureml://datastores/amlv2_pj_training_data/paths/
+        type: mltable
         mode: rw_mount
     environment: azureml:amlv2-pj-data-engineering@latest
 
   training:
     type: parallel
+    inputs:
+      training_data_folder:
+        type: mltable
+        mode: eval_mount
+        path: ${{parent.jobs.data_engineering.outputs.training_data_folder}}
+    outputs:
+      training_log:
+        type: uri_file
+        mode: rw_mount
     mini_batch_size: "1"
     mini_batch_error_threshold: -1
-    input_data: ${{inputs.training_dataset}}
     max_concurrency_per_instance: 2
     retry_settings:
       max_retries: 1
       timeout: 60
-    inputs:
-      training_dataset:
-        type: mltable
-        mode: eval_mount
-        path: azureml:amlv2_pj_training_data@latest
-    outputs:
-      training_logs:
-        type: uri_folder
-        path: azureml://datastores/datalake/paths/amlv2_pj_training_logs/
-        mode: rw_mount
+    input_data: ${{inputs.training_data_folder}}
     task:
       type: function
       code: training
       entry_script: training.py
       environment: azureml:amlv2-pj-training@latest
-      args: --training_data_folder {{parent.jobs.data_engineering.outputs.training_data_folder}}
-      append_row_to: ${{outputs.training_logs}}
+      append_row_to: ${{outputs.training_log}}

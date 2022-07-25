@@ -12,6 +12,11 @@ def prepare_training_data(args):
         with open(os.path.join(args.training_data_folder,tenant_metadata_file_name),'w') as tenant_metadata_file:
             json.dump(tenant,tenant_metadata_file)
         print(f"{tenant_metadata_file_name} generated.")
+    # generate MLTable metadata file
+    with open(os.path.join(args.training_data_folder,'MLTable'),'w') as MLTable_metadata_file:
+        MLTable_metadata_file.write("paths:\n")
+        MLTable_metadata_file.write("  - file: ./*.json")
+    
 
 # read arguments
 def parse_args():
