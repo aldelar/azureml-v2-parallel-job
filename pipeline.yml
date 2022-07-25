@@ -17,6 +17,12 @@ jobs:
 
   training:
     type: parallel
+    mini_batch_size: "1"
+    mini_batch_error_threshold: -1
+    max_concurrency_per_instance: 2
+    retry_settings:
+      max_retries: 1
+      timeout: 60
     environment_variables:
       env_var_1: "ENV_VAR_1_VALUE"
     inputs:
@@ -28,12 +34,6 @@ jobs:
       training_log:
         type: uri_file
         mode: rw_mount
-    mini_batch_size: "1"
-    mini_batch_error_threshold: -1
-    max_concurrency_per_instance: 2
-    retry_settings:
-      max_retries: 1
-      timeout: 60
     input_data: ${{inputs.training_data_folder}}
     task:
       type: function
