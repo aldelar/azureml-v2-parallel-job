@@ -38,4 +38,5 @@ jobs:
       code: training
       entry_script: training.py
       environment: azureml:amlv2-pj-training@latest
+      args: --param_1 "PARAM_1_VALUE"
       append_row_to: ${{outputs.training_log}}
