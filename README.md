@@ -14,7 +14,13 @@ This template showcases how to pass training jobs parameters either as:
 
 ## how to create and run the pipeline
 
-[Install the Azure CLI + the Azure CLI 'ml' extension](https://docs.microsoft.com/en-us/azure/machine-learning/how-to-configure-cli?tabs=public), then run:
+[Install the Azure CLI + the Azure CLI 'ml' extension](https://docs.microsoft.com/en-us/azure/machine-learning/how-to-configure-cli?tabs=public), then run the following to create the steps runtime environment (repeat this any time you need to modify the 'conda' files in each step folder to support code changes):
+
+```
+az ml environment create -f ./data-engineering/data-engineering-environment.yml
+az ml environment create -f ./training/training-environment.yml
+```
+To trigger a pipeline creation/run, run the following (note the flag to turn on the parallel job private preview feature if it isn't in public preview when you run this):
 
 ```
 AZURE_ML_CLI_PRIVATE_FEATURES_ENABLED=true az ml job create -f pipeline.yml --web
