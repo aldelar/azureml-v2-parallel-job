@@ -17,6 +17,8 @@ jobs:
 
   training:
     type: parallel
+    environment_variables:
+      env_var_1: "ENV_VAR_1_VALUE"
     inputs:
       training_data_folder:
         type: mltable
