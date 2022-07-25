@@ -30,7 +30,7 @@ def run(mini_batch):
         with open(tenant_file_path,'r') as tenant_file:
             tenant_dict = json.load(tenant_file)
         logger.info(f"train processing({tenant_basename} => {tenant_dict}) with param_1:{param_1}, env_var_1:{env_var_1}")
-        time.sleep(0.5) # simulate some small processing
+        time.sleep(2) # simulate some small processing
         results.append(f"{tenant_basename} processed")
 
     return results
