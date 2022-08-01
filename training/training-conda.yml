@@ -5,7 +5,7 @@ dependencies:
 - pip
 - python=3.8
 - pip:
-  - azureml-core
-  - azureml-dataprep
+  - azureml-core==1.43.0
+  - azureml-dataprep==4.2.2
   - mlflow
   - pandas
