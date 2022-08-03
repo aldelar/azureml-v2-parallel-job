@@ -8,6 +8,8 @@ We here have a simple pipeline with 2 steps:
 - data-engineering, which would grab data from a data source and generate training data sets (assuming we'd be training one model per dataset in the next step, multi-model scenario)
 - training: setup to run on a compute cluster (multi nodes + multiple training processes per node) which dispatches each training data set to the processes in the cluster to get through the workload
 
+![pipeline](doc/pipeline.png)
+
 This template showcases how to pass training jobs parameters either as:
 - environment variables which will automatically be setup on all training nodes (see 'env_var_1' in pipeline.yml and training.py)
 - training script parameters (see 'param_1' in pipeline.yml and training.py)
