@@ -1,27 +1,28 @@
 # azureml-v2-parallel-training
 
-## project description
+## project description (work in progress, still one issue in the last step)
 
 This is an Azure ML CLIv2 template project demonstrating the use of the parallel job type.
 
-We here have a simple pipeline with 2 steps:
-- data-engineering, which would grab data from a data source and generate training data sets (assuming we'd be training one model per dataset in the next step, multi-model scenario)
-- training: setup to run on a compute cluster (multi nodes + multiple training processes per node) which dispatches each training data set to the processes in the cluster to get through the workload
+We here have a simple pipeline with 3 steps:
+- data-engineering, grabs data from one input in the datalake (raw_data.csv), this file is located under ./datalake/raw_data/ in this repo, create a datastore in AML named 'datalake', and setup the CSV file in this repo location into the datalake to match the pipeline input definition. The step loops thru all the tenants in this file, simulates some data-engineering being done to output one file per tenant. This will define a 'task' for each tenant, which in our case here will be to simulate training a model per tenant and infering predictions for further cross tenants performance evaluation. NOTE: this step also creates a special task for the next step 'GENERATE-PREDICTIONS-MLTABLE' to tell the next step that one task is to do just that to convert an output folder as a Tabular [MLTable](https://docs.microsoft.com/en-us/azure/machine-learning/how-to-create-register-data-assets?tabs=CLI#create-a-mltable-data-asset)
+- training: setup to run on a compute cluster (multi nodes + multiple training processes per node) which dispatches each training data set to the processes in the cluster to get through the workload. One task as decribed above is to generate an MLTable descriptor, all other tasks are processing each tenant training csv data set to train/infer and save evaluations.
+- evaluation: reads the output of training as a Tabular dataset (dataset which is the composition of all the CSV files + some transformations to format column types). Here this step would perform an evaluation of the performance of each model or all models together against a test dataset.
 
 ![pipeline](doc/pipeline.png)
 
-This template showcases how to pass training jobs parameters either as:
+This template also showcases how to pass training jobs parameters to a parallel step either as:
 - environment variables which will automatically be setup on all training nodes (see 'env_var_1' in pipeline.yml and training.py)
 - training script parameters (see 'param_1' in pipeline.yml and training.py)
 
 The input of a parallel job relies on an [MLTable](https://docs.microsoft.com/en-us/azure/machine-learning/how-to-create-register-data-assets?tabs=CLI#create-a-mltable-data-asset) source.
 Please have a look at the data-engineering.py code which generates an MLTable descriptor alonside the data (two ways defined there, explicit list of all files to be included as the MLTable definition, or use of * qualifier to grab everything in the folder). An MLTable can describe a Tabular data set (and apply transformations on the fly) or a File dataset (any type of file for a wide range of use cases).
 
-The training job outputs fake predictions of the models to the 'prediction_data_folder' output, showcasing how to capture artifacts into a specific datalake location. The 'datalake' datastore has to be defined in your Azure ML environment, and would be pointint to a storage account container. The folder (path) defined in 'prediction_data_folder' will be created automatically in the datalake if it doesn't exist already.
+The training job outputs fake predictions of the models to the 'prediction_data_folder' output, showcasing how to capture artifacts into a specific datalake location. The 'datalake' datastore has to be defined in your Azure ML environment, and would be pointint to a storage account container. The folder (path) defined in 'predictions_data_folder' will be created automatically in the datalake if it doesn't exist already.
 
 ```
 outputs:
-      prediction_data_folder:
+      predictions_data_folder:
         type: uri_folder
         path: azureml://datastores/datalake/paths/aml_v2_pj_prediction_data
         mode: rw_mount
@@ -34,6 +35,7 @@ outputs:
 ```
 az ml environment create -f ./data-engineering/data-engineering-environment.yml
 az ml environment create -f ./training/training-environment.yml
+az ml environment create -f ./evaluation/evaluation-environment.yml
 ```
 To trigger a pipeline creation/run, run the following (note the flag to turn on the parallel job private preview feature if it isn't in public preview when you run this):
 

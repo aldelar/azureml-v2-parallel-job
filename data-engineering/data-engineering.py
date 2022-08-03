@@ -1,31 +1,35 @@
-import argparse,json,os
+import argparse,os
+import pandas as pd
 
 # data engineering
 def prepare_training_data(args):
-    # simulating reading tenants from DB
-    tenants = []
-    for i in range(1, 101):
-        tenants.append({ "id": str(i) })
-    # generate MLTable metadata file
+    # reading data from raw data file
+    raw_data_df = pd.read_csv(args.raw_data_file)
+    # TODO: data engineering here for what can be done accross all tenants in the source data...
     with open(os.path.join(args.training_data_folder,'MLTable'),'w') as MLTable_metadata_file:
+        # start to generate MLTable metadata file
         MLTable_metadata_file.write("paths:\n")
+        # We add a special file (task) to the descriptor
+        # which will trigger the parallel step to generate the MLTable file for the predictions data set
+        generate_mltable_for_predictions_filename = 'GENERATE-PREDICTIONS-MLTABLE'
+        MLTable_metadata_file.write(f"  - file: ./{generate_mltable_for_predictions_filename}\n")
+        # corresponding empty file saved into the ouput, will trigger the parallel step to generate the MLTable file for the predictions data set
+        with open(os.path.join(args.training_data_folder,generate_mltable_for_predictions_filename),'w') as generate_mltable_for_predictions_file:
+            generate_mltable_for_predictions_file.write("")
         # dump tenant metadata/data into one file per tenant for further processing by parallel run step
-        for tenant in tenants:
-            tenant_metadata_file_name = "tenant_" + tenant['id'] + '.json'
+        for tenant_id in raw_data_df['tenant_id'].unique():
+            # tenant specific data
+            tenant_data_df = raw_data_df[raw_data_df['tenant_id'] == tenant_id]
+            # TODO: potential extra data engineering at the tenant level
+            # now save tenant training data to file into training data folder
+            tenant_metadata_file_name = "tenant_" + str(tenant_id) + '.csv'
             with open(os.path.join(args.training_data_folder,tenant_metadata_file_name),'w') as tenant_metadata_file:
-                # 'tenant' could contain your training data set if running in a non parallel step is efficient for this process
-                # or here just an id, assuming you may use this id in the training step to directly retrieve data from a database
-                # for instance at training time by each process (data engineering maybe done as a SQL query from your store)
-                # note: you could also consider a multi-steps approach for your data prep:
-                # 1. query your datastore to figure out which tenants need to be processed, collect their ids, generate id files as job definitions
-                # 2. run a parallel step to generate the tenant training data files (actual data retrieval and engineering done on datalake at that point)
-                # 4. pipe output of 2 to 3. (paralell step to do training)
-                json.dump(tenant,tenant_metadata_file)
+                tenant_data_df.to_csv(tenant_metadata_file,index=False)
             print(f"{tenant_metadata_file_name} generated.")
-            # add file to MLTable metadata file
+            # add file to MLTable metadata file descriptor
             MLTable_metadata_file.write(f"  - file: ./{tenant_metadata_file_name}\n")
-    
-    # alternate MLTable metadata file content
+
+    # alternate MLTable metadata file content (not safe if your destination folder isn't guaranteed to be empty when this runs)
     # paths:
     #  - file: ./*.json
 
@@ -33,8 +37,10 @@ def prepare_training_data(args):
 def parse_args():
     # retrieve output location
     parser = argparse.ArgumentParser()
-    parser.add_argument('--training_data_folder', type=str, dest='training_data_folder')
+    parser.add_argument('--raw_data_file', type=str)
+    parser.add_argument('--training_data_folder', type=str)
     args, unknown_args = parser.parse_known_args()
+    print(f"raw_data_file: {args.raw_data_file}")
     print(f"training_data_folder: {args.training_data_folder}")
     return args
 

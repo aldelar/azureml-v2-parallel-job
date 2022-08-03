@@ -3,18 +3,23 @@ type: pipeline
 display_name: amlv2_parallel_job
 compute: azureml:cpu-cluster
 settings:
-  force_rerun: true
-
+  force_rerun: false
 jobs:
 
   data_engineering:
     type: command
     code: data-engineering
-    command: python data-engineering.py --training_data_folder ${{outputs.training_data_folder}}
+    command: python data-engineering.py --raw_data_file ${{inputs.raw_data_file}} --training_data_folder ${{outputs.training_data_folder}}
+    inputs:
+      raw_data_file:
+        type: uri_file
+        mode: ro_mount
+        path: azureml://datastores/datalake/paths/amlv2_pj_raw_data/raw_data.csv
     outputs:
       training_data_folder:
         type: mltable
         mode: rw_mount
+        path: azureml://datastores/datalake/paths/amlv2_pj_training_data
     environment: azureml:amlv2-pj-data-engineering@latest
 
   training:
@@ -35,18 +40,30 @@ jobs:
         mode: eval_mount
         path: ${{parent.jobs.data_engineering.outputs.training_data_folder}}
     outputs:
-      prediction_data_folder:
-        type: uri_folder
-        path: azureml://datastores/datalake/paths/aml_v2_pj_prediction_data
+      predictions_data_folder:
+        type: mltable
         mode: rw_mount
+        path: azureml://datastores/datalake/paths/amlv2_pj_predictions_data
       training_log:
         type: uri_file
         mode: rw_mount
+        path: azureml://datastores/datalake/paths/amlv2_pj_training_log/training_log.txt
     input_data: ${{inputs.training_data_folder}}
     task:
       type: function
       code: training
       entry_script: training.py
       environment: azureml:amlv2-pj-training@latest
-      args: --param_1 "PARAM_1_VALUE" --prediction_data_folder ${{outputs.prediction_data_folder}}
+      args: --param_1 "PARAM_1_VALUE" --predictions_data_folder ${{outputs.predictions_data_folder}}
       append_row_to: ${{outputs.training_log}}
+
+  evaluation:
+    type: command
+    code: evaluation
+    command: python evaluation.py --predictions_data_file ${{inputs.predictions_data_file}}
+    inputs:
+      predictions_data_file:
+        type: mltable
+        mode: direct
+        path: ${{parent.jobs.training.outputs.predictions_data_folder}}
+    environment: azureml:amlv2-pj-evaluation@latest

@@ -1,4 +1,4 @@
-name: amlv2-pj-training
+name: amlv2-pj-evaluation
 channels:
 - conda-forge
 dependencies:
@@ -9,5 +9,6 @@ dependencies:
   - azureml-dataprep
   - azureml-dataset-runtime[pandas,fuse]
   - azureml-telemetry
+  - fsspec
   - mlflow
   - pandas
