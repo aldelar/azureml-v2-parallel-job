@@ -35,6 +35,10 @@ jobs:
         mode: eval_mount
         path: ${{parent.jobs.data_engineering.outputs.training_data_folder}}
     outputs:
+      prediction_data_folder:
+        type: uri_folder
+        path: azureml://datastores/datalake/paths/aml_v2_pj_prediction_data
+        mode: rw_mount
       training_log:
         type: uri_file
         mode: rw_mount
@@ -44,5 +48,5 @@ jobs:
       code: training
       entry_script: training.py
       environment: azureml:amlv2-pj-training@latest
-      args: --param_1 "PARAM_1_VALUE"
+      args: --param_1 "PARAM_1_VALUE" --prediction_data_folder ${{outputs.prediction_data_folder}}
       append_row_to: ${{outputs.training_log}}
