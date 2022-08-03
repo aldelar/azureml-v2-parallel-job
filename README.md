@@ -15,6 +15,16 @@ This template showcases how to pass training jobs parameters either as:
 The input of a parallel job relies on an [MLTable](https://docs.microsoft.com/en-us/azure/machine-learning/how-to-create-register-data-assets?tabs=CLI#create-a-mltable-data-asset) source.
 Please have a look at the data-engineering.py code which generates an MLTable descriptor alonside the data (two ways defined there, explicit list of all files to be included as the MLTable definition, or use of * qualifier to grab everything in the folder). An MLTable can describe a Tabular data set (and apply transformations on the fly) or a File dataset (any type of file for a wide range of use cases).
 
+The training job outputs fake predictions of the models to the 'prediction_data_folder' output, showcasing how to capture artifacts into a specific datalake location. The 'datalake' datastore has to be defined in your Azure ML environment, and would be pointint to a storage account container. The folder (path) defined in 'prediction_data_folder' will be created automatically in the datalake if it doesn't exist already.
+
+```
+outputs:
+      prediction_data_folder:
+        type: uri_folder
+        path: azureml://datastores/datalake/paths/aml_v2_pj_prediction_data
+        mode: rw_mount
+```
+
 ## how to create and run the pipeline
 
 [Install the Azure CLI + the Azure CLI 'ml' extension](https://docs.microsoft.com/en-us/azure/machine-learning/how-to-configure-cli?tabs=public), then run the following to create the steps runtime environment (repeat this any time you need to modify the 'conda' files in each step folder to support code changes):
