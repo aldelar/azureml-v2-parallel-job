@@ -11,4 +11,5 @@ dependencies:
   - azureml-telemetry
   - fsspec
   - mlflow
+  - mltable
   - pandas

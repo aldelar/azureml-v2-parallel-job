@@ -41,14 +41,7 @@ def run(mini_batch):
                 MLTable_predictions_metadata_file.write("  - read_delimited:\n")
                 MLTable_predictions_metadata_file.write("        delimiter: ','\n")
                 MLTable_predictions_metadata_file.write("        encoding: 'ascii'\n")
-                MLTable_predictions_metadata_file.write("        header: all_files_same_headers\n")
-                MLTable_predictions_metadata_file.write("  - convert_column_types:\n")
-                MLTable_predictions_metadata_file.write("      - columns: tenant_id\n")
-                MLTable_predictions_metadata_file.write("        column_type: int\n")
-                MLTable_predictions_metadata_file.write("      - columns: feature\n")
-                MLTable_predictions_metadata_file.write("        column_type: string\n")
-                MLTable_predictions_metadata_file.write("      - columns: metric\n")
-                MLTable_predictions_metadata_file.write("        column_type: float\n")    
+                MLTable_predictions_metadata_file.write("        header: all_files_same_headers\n") 
         else:
             # we have a regular tenant training data file task,
             # process the tenant training data file to train a model + infer predictions for the final evaluation step
