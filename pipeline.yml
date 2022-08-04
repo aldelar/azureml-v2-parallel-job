@@ -90,5 +90,6 @@ jobs:
     inputs:
       predictions_mltable:
         type: mltable
+        mode: ro_mount
         path: ${{parent.jobs.generate_predictions_mltable.outputs.predictions_mltable}}
     environment: azureml:amlv2-pj-evaluation@latest
