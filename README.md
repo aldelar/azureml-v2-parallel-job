@@ -4,10 +4,11 @@
 
 This is an Azure ML CLIv2 template project demonstrating the use of the parallel job type.
 
-We here have a simple pipeline with 3 steps:
-- data-engineering, grabs data from one input in the datalake (raw_data.csv), this file is located under ./datalake/raw_data/ in this repo, create a datastore in AML named 'datalake', and setup the CSV file in this repo location into the datalake to match the pipeline input definition. The step loops thru all the tenants in this file, simulates some data-engineering being done to output one file per tenant. This will define a 'task' for each tenant, which in our case here will be to simulate training a model per tenant and infering predictions for further cross tenants performance evaluation. NOTE: this step also creates a special task for the next step 'GENERATE-PREDICTIONS-MLTABLE' to tell the next step that one task is to do just that to convert an output folder as a Tabular [MLTable](https://docs.microsoft.com/en-us/azure/machine-learning/how-to-create-register-data-assets?tabs=CLI#create-a-mltable-data-asset)
-- training: setup to run on a compute cluster (multi nodes + multiple training processes per node) which dispatches each training data set to the processes in the cluster to get through the workload. One task as decribed above is to generate an MLTable descriptor, all other tasks are processing each tenant training csv data set to train/infer and save evaluations.
-- evaluation: reads the output of training as a Tabular dataset (dataset which is the composition of all the CSV files + some transformations to format column types). Here this step would perform an evaluation of the performance of each model or all models together against a test dataset.
+We here have a simple pipeline with 4 steps:
+- data-engineering, grabs data from one input in the datalake (raw_data.csv), this file is located under ./datalake/amlv2_pj_raw_data/ in this repo, create a datastore in AML named 'datalake', and setup the CSV file in this repo location into the datalake to match the pipeline input definition. The step loops thru all the tenants in this file, simulates some data-engineering being done to output one file per tenant. This will define a 'task' for each tenant, which in our case here will be to simulate training a model per tenant and infering predictions for further cross tenants performance evaluation.)
+- training: setup to run on a compute cluster (multi nodes + multiple training processes per node) which dispatches each training data set to the processes in the cluster to get through the workload. Each tasks is processing one tenant training csv data set to train/infer and save evaluations.
+- generate_predictions_mltable: this simple bash step just generates the MLTable descriptor inside the output of training (predictions) so we can load it in the next step as a simple Tabular mltable
+- evaluation: reads the output of training as a Tabular dataset (dataset which is the composition of all the CSV files + some potenmtial transformations to format column types supported by MLTable). Here this step would perform an evaluation of the performance of each model or all models together against a test dataset.
 
 ![pipeline](doc/pipeline.png)
 
@@ -24,8 +25,8 @@ The training job outputs fake predictions of the models to the 'prediction_data_
 outputs:
       predictions_data_folder:
         type: uri_folder
-        path: azureml://datastores/datalake/paths/aml_v2_pj_prediction_data
         mode: rw_mount
+        path: azureml://datastores/datalake/paths/aml_v2_pj_prediction_data
 ```
 
 ## how to create and run the pipeline

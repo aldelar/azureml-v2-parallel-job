@@ -5,16 +5,16 @@ import mltable
 # evaluation
 def evaluation(args):
     # open up the predictions file
-    predictions_df = mltable.load(args.predictions_data_file).to_pandas_dataframe()
+    predictions_df = mltable.load(args.predictions_mltable).to_pandas_dataframe()
     print(f"predictions_df: {predictions_df}")
     
 # read arguments
 def parse_args():
     # retrieve output location
     parser = argparse.ArgumentParser()
-    parser.add_argument('--predictions_data_file', type=str)
+    parser.add_argument('--predictions_mltable', type=str)
     args, unknown_args = parser.parse_known_args()
-    print(f"predictions_data_file: {args.predictions_data_file}")
+    print(f"predictions_mltable: {args.predictions_mltable}")
     return args
 
 # main

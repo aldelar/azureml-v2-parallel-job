@@ -1,0 +1,14 @@
+paths:
+  - file: ./GENERATE-PREDICTIONS-MLTABLE
+  - file: ./tenant_1.csv
+  - file: ./tenant_2.csv
+  - file: ./tenant_3.csv
+  - file: ./tenant_4.csv
+  - file: ./tenant_5.csv
+  - file: ./tenant_6.csv
+  - file: ./tenant_7.csv
+  - file: ./tenant_8.csv
+  - file: ./tenant_9.csv
+  - file: ./tenant_10.csv
+  - file: ./tenant_11.csv
+  - file: ./tenant_12.csv

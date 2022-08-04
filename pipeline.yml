@@ -4,12 +4,15 @@ display_name: amlv2_parallel_job
 compute: azureml:cpu-cluster
 settings:
   force_rerun: false
+
 jobs:
 
   data_engineering:
     type: command
     code: data-engineering
-    command: python data-engineering.py --raw_data_file ${{inputs.raw_data_file}} --training_data_folder ${{outputs.training_data_folder}}
+    command: >-
+      rm -rf ${{outputs.training_data_folder}};
+      python data-engineering.py --raw_data_file ${{inputs.raw_data_file}} --training_data_folder ${{outputs.training_data_folder}};
     inputs:
       raw_data_file:
         type: uri_file
@@ -41,7 +44,7 @@ jobs:
         path: ${{parent.jobs.data_engineering.outputs.training_data_folder}}
     outputs:
       predictions_data_folder:
-        type: mltable
+        type: uri_folder
         mode: rw_mount
         path: azureml://datastores/datalake/paths/amlv2_pj_predictions_data
       training_log:
@@ -57,13 +60,36 @@ jobs:
       args: --param_1 "PARAM_1_VALUE" --predictions_data_folder ${{outputs.predictions_data_folder}}
       append_row_to: ${{outputs.training_log}}
 
+  generate_predictions_mltable:
+    type: command
+    command: >-
+      cd ${{outputs.predictions_mltable}};
+      printf "paths:\n" > MLTable;
+      for f in *.csv ; do printf "  - file: $f\n" >> MLTable ; done;
+      printf "transformations:\n" >> MLTable;
+      printf " - read_delimited:\n" >> MLTable;
+      printf "     delimiter: ','\n" >> MLTable;
+      printf "     encoding: 'ascii'\n" >> MLTable;
+      printf "     header: all_files_same_headers\n" >> MLTable;
+    inputs:
+      predictions_data_folder:
+        type: uri_folder
+        mode: ro_mount
+        path: ${{parent.jobs.training.outputs.predictions_data_folder}}
+    outputs:
+      predictions_mltable:
+        type: mltable
+        mode: rw_mount
+        path: azureml://datastores/datalake/paths/amlv2_pj_predictions_data
+    environment: azureml:AzureML-minimal-ubuntu18.04-py37-cpu-inference@latest
+
   evaluation:
     type: command
     code: evaluation
-    command: python evaluation.py --predictions_data_file ${{inputs.predictions_data_file}}
+    command: python evaluation.py --predictions_mltable ${{inputs.predictions_mltable}};
     inputs:
-      predictions_data_file:
+      predictions_mltable:
         type: mltable
         mode: direct
-        path: ${{parent.jobs.training.outputs.predictions_data_folder}}
+        path: ${{parent.jobs.generate_predictions_mltable.outputs.predictions_mltable}}
     environment: azureml:amlv2-pj-evaluation@latest
