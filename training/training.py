@@ -35,8 +35,9 @@ def run(mini_batch):
         with open(tenant_file_path,'r') as tenant_file:
             tenant_df = pd.read_csv(tenant_file)
         logger.info(f"train processing({tenant_basename} => {tenant_df}) with param_1:{param_1}, env_var_1:{env_var_1}")
-        time.sleep(1) # simulate some small processing (train model / perform predictions)
-        # simulate writing predictions to the output folder (we just copy over the file here to simulate the output)
+        # TODO: replace this part with your model training
+        time.sleep(1) 
+        # TODO: write the output of your models predictions for further performance evaluation of your strategy
         with open(os.path.join(predictions_data_folder,tenant_basename),'w') as prediction_file:
             tenant_df.to_csv(prediction_file,index=False)
         # log to global results object

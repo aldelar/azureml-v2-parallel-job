@@ -1,5 +1,4 @@
 paths:
-  - file: ./GENERATE-PREDICTIONS-MLTABLE
   - file: ./tenant_1.csv
   - file: ./tenant_2.csv
   - file: ./tenant_3.csv
