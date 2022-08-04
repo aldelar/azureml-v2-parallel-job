@@ -1,4 +1,3 @@
-GENERATE-PREDICTIONS-MLTABLE processed
 tenant_1.csv processed
 tenant_10.csv processed
 tenant_11.csv processed
