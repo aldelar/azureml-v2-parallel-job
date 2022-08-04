@@ -64,13 +64,13 @@ jobs:
     type: command
     command: >-
       cd ${{outputs.predictions_mltable}};
-      printf "paths:\n" > MLTable;
-      for f in *.csv ; do printf "  - file: $f\n" >> MLTable ; done;
-      printf "transformations:\n" >> MLTable;
-      printf " - read_delimited:\n" >> MLTable;
-      printf "     delimiter: ','\n" >> MLTable;
-      printf "     encoding: 'ascii'\n" >> MLTable;
-      printf "     header: all_files_same_headers\n" >> MLTable;
+      echo "paths:" > MLTable;
+      for f in *.csv ; do echo "  - file: $f" >> MLTable ; done;
+      echo "transformations:" >> MLTable;
+      echo " - read_delimited:" >> MLTable;
+      echo " "" "" "" """ "delimiter: ','" >> MLTable;
+      echo " "" "" "" """ "encoding: 'ascii'" >> MLTable;
+      echo " "" "" "" """ "header: all_files_same_headers" >> MLTable;
     inputs:
       predictions_data_folder:
         type: uri_folder
