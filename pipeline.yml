@@ -1,9 +1,8 @@
 $schema: https://azuremlschemas.azureedge.net/latest/pipelineJob.schema.json
 type: pipeline
 display_name: amlv2_parallel_job
-compute: azureml:cpu-cluster
 settings:
-  force_rerun: false
+  force_rerun: true
 
 jobs:
 
@@ -24,17 +23,20 @@ jobs:
         mode: rw_mount
         path: azureml://datastores/datalake/paths/amlv2_pj_training_data
     environment: azureml:amlv2-pj-data-engineering@latest
+    compute: azureml:cpu-cluster
 
   training:
     type: parallel
     mini_batch_size: "1"
     mini_batch_error_threshold: -1
-    max_concurrency_per_instance: 2
     retry_settings:
       max_retries: 1
       timeout: 60
     resources:
       instance_count: 2
+    max_concurrency_per_instance: 2
+    logging_level: "DEBUG"
+    compute: azureml:cpu-cluster
     environment_variables:
       env_var_1: "ENV_VAR_1_VALUE"
     inputs:
@@ -53,11 +55,11 @@ jobs:
         path: azureml://datastores/datalake/paths/amlv2_pj_training_log/training_log.txt
     input_data: ${{inputs.training_data_folder}}
     task:
-      type: function
+      type: run_function
       code: training
       entry_script: training.py
       environment: azureml:amlv2-pj-training@latest
-      args: --param_1 "PARAM_1_VALUE" --predictions_data_folder ${{outputs.predictions_data_folder}}
+      program_arguments: --param_1 "PARAM_1_VALUE" --predictions_data_folder ${{outputs.predictions_data_folder}}
       append_row_to: ${{outputs.training_log}}
 
   generate_predictions_mltable:
@@ -82,6 +84,7 @@ jobs:
         mode: rw_mount
         path: azureml://datastores/datalake/paths/amlv2_pj_predictions_data
     environment: azureml:AzureML-minimal-ubuntu18.04-py37-cpu-inference@latest
+    compute: azureml:cpu-cluster
 
   evaluation:
     type: command
@@ -93,3 +96,4 @@ jobs:
         mode: ro_mount
         path: ${{parent.jobs.generate_predictions_mltable.outputs.predictions_mltable}}
     environment: azureml:amlv2-pj-evaluation@latest
+    compute: azureml:cpu-cluster

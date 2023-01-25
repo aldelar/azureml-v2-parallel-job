@@ -1,5 +1,8 @@
 import argparse,os,time
 import pandas as pd
+
+import tensorflow as tf
+
 from azureml_user.parallel_run import EntryScript
 
 # init() called once per process
@@ -36,7 +39,8 @@ def run(mini_batch):
             tenant_df = pd.read_csv(tenant_file)
         logger.info(f"train processing({tenant_basename} => {tenant_df}) with param_1:{param_1}, env_var_1:{env_var_1}")
         # TODO: replace this part with your model training
-        time.sleep(1) 
+        logger.info("training model...")
+        time.sleep(5) 
         # TODO: write the output of your models predictions for further performance evaluation of your strategy
         with open(os.path.join(predictions_data_folder,tenant_basename),'w') as prediction_file:
             tenant_df.to_csv(prediction_file,index=False)
@@ -44,3 +48,13 @@ def run(mini_batch):
         results.append(f"{tenant_basename} processed")
 
     return results
+
+# main() called once per process
+if __name__ == '__main__':
+    #
+    init()
+    # retrieve the input data from the entry script
+    input_data_files = ['/datalake/json_folder/file1.json', '/datalake/json_folder/file2.json', '/datalake/json_folder/file3.json']
+    results = run(input_data_files)
+    # log the results
+    logger.info(f"train results:{results}")

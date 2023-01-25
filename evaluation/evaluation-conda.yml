@@ -2,7 +2,7 @@ name: amlv2-pj-evaluation
 channels:
 - conda-forge
 dependencies:
-- pip
+- pip=20.2.4
 - python=3.8
 - pip:
   - azureml-core
