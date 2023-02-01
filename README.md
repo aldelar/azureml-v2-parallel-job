@@ -38,8 +38,8 @@ az ml environment create -f ./data-engineering/data-engineering-environment.yml
 az ml environment create -f ./training/training-environment.yml
 az ml environment create -f ./evaluation/evaluation-environment.yml
 ```
-To trigger a pipeline creation/run, run the following (note the flag to turn on the parallel job private preview feature if it isn't in public preview when you run this):
+To trigger a pipeline creation/run, run the following:
 
 ```
-AZURE_ML_CLI_PRIVATE_FEATURES_ENABLED=true az ml job create -f pipeline.yml --web
+az ml job create -f pipeline.yml --web
 ```
